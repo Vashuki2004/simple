@@ -1,0 +1,130 @@
+////////////////Steepest descent//////////////////
+clc
+clear all
+
+f = @(x) x(1)^2 + x(2)^2 - x(1)*x(2);
+grad_f = @(x) [2*x(1) - x(2);  2*x(2) - x(1)];
+
+x0  = [1; 0.5];
+lambda = 0.5;
+err = 0.05;
+max_it = 4;
+
+for i = 1 : max_it
+    x1 = x0 - lambda*grad_f(x0);
+    if abs(f(x1) - f(x0)) < err
+        disp('converged ');
+        disp(x0);
+        disp(f(x0));
+        break;
+    end
+    x0 = x1;
+end
+
+
+////////////////Least cost//////////////////
+clc
+clear all
+
+c=[8 2 3 4; 7 6 2 5; 4 3 2 7];
+a=[30 50 35];
+b=[15 30 25 45];
+m = length(a);
+n = length(b);
+if sum(a) == sum(b)
+    disp('balanced');
+else
+    if sum(a)>sum(b)
+        c = [c zeros(m,1)];
+        b = [b sum(a)-sum(b)];
+        n = length(b);
+    else
+        c = [c;zeros(1,n)];
+        a = [a sum(b)-sum(a)];
+        m = length(a);
+    end
+end
+c_og = c;
+x = zeros(m,n);
+bfs = 0;
+
+while bfs < m+n-1
+    for j = 1:n
+        [cm(j), i_col(j)]=min(c(:,j));
+    end
+
+    [cmin, jj]=min(cm);
+    [xind,yind] = find(c == cmin);
+    k = length(xind);
+    alloc =[]
+    for i = 1:k
+        alloc(i) = min(a(xind(i)),b(yind(i)));
+    end
+    [xij, ind_alloc] = max(alloc);
+    ii = xind(ind_alloc);
+    jj = yind(ind_alloc);
+    x(ii,jj) = xij;
+    a(ii) = a(ii)-xij;
+    b(jj) = b(jj)-xij;
+     bfs = bfs +1;
+     if a(ii) ==0
+         c(ii,:) = inf;
+     else
+         c(:,jj) = inf;
+     end
+end
+
+z =c_og.*x;  
+zf = sum(sum(z))
+
+
+
+///////////////////////simplex/////////////////////
+clc
+clear all
+A=[-1 1 1 0;1 1 0 1]
+b=[1;2]
+C=[1 2 0 0]
+index=[3 4]
+CB= []
+BS= []
+m=length(b)
+n=length(C)
+for i=1:m
+ CB(i)=C(index(i))
+ BS=[BS A(:,index(i))]
+end
+Y=inv(BS)*A
+XB=inv(BS)*b
+Z=CB*Y-C
+Zmax=CB*XB
+while(min(Z)<0)
+ [minZ,EV]=min(Z)
+ for i= 1:m
+  if Y(i,EV)>0
+   ratio(i)=XB(i)/Y(i,EV)
+  else
+   ratio(i)=Inf
+  end
+ end
+  if min(ratio)~=Inf
+   [minz,LV]=min(ratio)
+   index(LV)=EV
+  else
+   disp('Unbounded solution')
+   return
+  end
+  CB=[]
+  BS=[]
+  for i=1:m
+   CB(i)=C(index(i))
+   BS=[BS A(:,index(i))]
+  end
+  Y=inv(BS)*A
+  XB=inv(BS)*b
+  Z=CB*Y-C
+  Zmax=CB*XB
+ end
+X=zeros
+X(index) = XB
+Zmax
