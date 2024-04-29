@@ -128,3 +128,43 @@ while(min(Z)<0)
 X=zeros
 X(index) = XB
 Zmax
+
+
+
+//////////////////least cost/////////////////
+clc
+clear all
+C=[2 3 7 1;4 1 5 8;3 4 7 1]
+a=[50;50;80]
+b=[20;50;50;60]
+m=length(a)
+n=length(b)
+no_of_basic_soln=m+n-1
+NBV=0
+x=zeros(m,n)
+while(NBV<no_of_basic_soln)
+    min_cost = Inf;
+    min_i = 0;
+    min_j = 0;
+    for i = 1:m
+        for j = 1:n
+            if C(i, j) < min_cost
+                min_cost = C(i, j);
+                min_i = i;
+                min_j = j;
+            end
+        end
+    end
+    x(min_i, min_j) = min(a(min_i), b(min_j));
+    a(min_i)=a(min_i)-x(min_i,min_j)
+    b(min_j)=b(min_j)-x(min_i,min_j)
+    if a(min_i) == 0
+        C(min_i, :) = Inf;
+    else 
+        C(:, min_j) = Inf;
+    end
+  NBV = NBV+1
+end
+
+disp('Transportation Matrix:');
+disp(x);
